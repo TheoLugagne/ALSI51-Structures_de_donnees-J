@@ -52,29 +52,34 @@ int fast_exp(int a, int b) {
 int apply_op(operator_type op, int a, int b) {
     switch (op) {
         case ADD:
-            // TODO
+            return a + b;
         case SUB:
-            // TODO
+            return a - b;
         case MULT:
-            // TODO
+            return a * b;
         case DIV:
-            // TODO
+            if (b == 0) {
+                fprintf(stderr, "Division by zero\n");
+                exit(EXIT_FAILURE);
+            }
+            return a / b;
         case EXP:
-            // TODO
+            return fast_exp(a, b);
         case LESS:
-            // TODO
+            return a < b;
         case GREATER:
-            // TODO
+            return a > b;
         case LEQ:
-            // TODO
+            return a <= b;
         case GEQ:
-            // TODO
+            return a >= b;
         case EQUAL:
-            // TODO
+            return a == b;
         case DIFF:
-            // TODO
+            return a != b;
         default:
-            break;
+            fprintf(stderr, "Unknown operator in apply_op\n");
+            exit(EXIT_FAILURE);
     }
 }
 
