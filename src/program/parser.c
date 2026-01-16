@@ -1,0 +1,95 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "program/program.h"
+#include "program/lexical.h"
+
+#include "program/parser.h"
+
+
+void get_expr(t_expr_rpn *expr, const t_prog_token_list *list, unsigned int *i) {
+    t_prog_token token = ptl_get(list, *i);
+    if (token.token_type != PT_EXPR) {
+        printf("Expression expected\n");
+        *i = (unsigned int) (-1);
+        return;
+    }
+    *expr = token.content.expr_rpn;
+    (*i)++;
+}
+
+t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
+
+    if (*i >= list->size)
+        return NULL;
+
+    t_ast *prog = malloc(sizeof(t_ast)); // Current node of the AST
+
+    const t_prog_token token = ptl_get(list, *i);
+    switch (token.token_type) {
+        case PT_VAR: {
+            // TODO
+            t_assignment_statement st;
+            st.var = 'a'; // TODO
+            get_expr(&st.expr, list, i);
+            // TODO
+            // prog->... = ...
+            break;
+        }
+        case PT_KEYWORD: {
+            switch (token.content.keyword) {
+                case KW_PRINT: {
+                    // TODO
+                    break;
+                }
+                case KW_RETURN: {
+                    t_return_statement st;
+                    // TODO
+                    break;
+                }
+                case KW_IF: {
+                    t_if_statement st;
+                    st.if_true  = NULL;
+                    st.if_false = NULL;
+                    // TODO
+                    break;
+                }
+                case KW_WHILE: {
+                    t_while_statement st;
+                    st.block = NULL;
+                    // TODO
+                    break;
+                }
+                case KW_ENDBLOCK:
+                case KW_ELSE: {
+                    (*i)++;
+                    return NULL;
+                }
+                default:
+                    printf("Syntax error: wrong keyword ");
+                    print_keyword(token.content.keyword);
+                    printf("\n");
+                    break;
+            }
+            break;
+        }
+        default: {
+            printf("Syntax error: wrong token type\n");
+            break;
+        }
+    }
+    if (*i == (unsigned int) (-1)) {
+        //free(prog);
+        return NULL;
+    }
+    return prog;
+}
+
+t_ast *parse(const t_prog_token_list *list) {
+
+    if (list->size == 0) return NULL;
+
+    unsigned int i = 0; // index in the list
+    return parse_aux(list, &i);
+}
