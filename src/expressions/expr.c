@@ -126,12 +126,27 @@ void error_rpn() {
 
 // Returns the value of the variable var
 int look_up_variable(const int var_table[], const char var) {
-    return 0; // TODO
+    return var_table[(unsigned char)var - 'a'];
 }
 
 // Returns the value of the token t (of type NUMBER or VARIABLE)
 int get_value(const int var_table[], const t_expr_token *t) {
-    return 0; // TODO
+    if (t == NULL) {
+        fprintf(stderr, "get_value: null token\n");
+        exit(EXIT_FAILURE);
+    }
+
+    switch (t->type) {
+        case NUMBER: {
+            return t->content.val;
+        }
+        case VARIABLE: {
+            return look_up_variable(var_table, t->content.var);
+        }
+        default:
+            fprintf(stderr, "get_value: unexpected token type\n");
+            exit(EXIT_FAILURE);
+    }
 }
 
 // Returns the result of the evaluation of the expression expr, in Reverse Polish notation
@@ -143,29 +158,42 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
     t_stack stack = create_empty_stack();
 
     while (!is_empty_expr(&expr)) {
-        t_expr_token token = get_next_token(&expr);
+        const t_expr_token token = get_next_token(&expr);
 
         switch (token.type) {
             case NUMBER:
             case VARIABLE:
-                // TODO
+                push(&stack, token);
                 break;
             
             case OPERATOR: {
-                // TODO
+                const t_expr_token t = pop(&stack);
+                const int a = get_value(var_table, &t);
+                const t_expr_token t2 = pop(&stack);
+                const int b = get_value(var_table, &t2);
+
+                t_expr_token token_res;
+                token_res.type = NUMBER;
+                token_res.content.val = apply_op(token.content.op, a, b);
+                push(&stack, token_res);
                 break;
             }
 
             case PARENTHESIS:
-                // TODO
-                break;
+                fprintf(stderr, "eval_rpn: parenthesis found in rpn expression\n");
+                exit(EXIT_FAILURE);
         }
     }
 
-    // TODO
+    if (is_empty_stack(&stack)) {
+        fprintf(stderr, "eval_rpn: not result get from eval\n");
+        exit(EXIT_FAILURE);
+    }
+    const t_expr_token token_result = get_top(&stack);
+    const int res = get_value(var_table, &token_result);
 
     destroy_stack(&stack);
-    return 0; // TODO
+    return res;
 }
 
 // Converts an expression in infix notation to Reverse Polish notation
@@ -233,9 +261,9 @@ t_expr_rpn shunting_yard(t_expr *expr) {
 }
 
 void destroy_expr(t_expr *expr) {
-    // TODO
+    destroy_list(&expr->list);
 }
 
 void destroy_expr_rpn(t_expr_rpn *expr_rpn) {
-    // TODO
+    destroy_expr(&expr_rpn->expr);
 }
