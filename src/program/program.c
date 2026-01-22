@@ -225,27 +225,34 @@ void destroy_statement(const e_statement_type type, u_statement *statement) {
     switch (type) {
         case Assignment: {
             t_assignment_statement *st = &statement->assignment_st;
-            // TODO
+            destroy_expr_rpn(&st->expr);
+            free(st);
             break;
         }
         case Return: {
             t_return_statement *st = &statement->return_st;
-            // TODO
+            destroy_expr_rpn(&st->expr);
+            free(st);
             break;
         }
         case Print: {
             t_print_statement *st = &statement->print_st;
-            // TODO
+            destroy_expr_rpn(&st->expr);
+            free(st);
             break;
         }
         case If: {
             t_if_statement *st = &statement->if_st;
-            // TODO
+            destroy_expr_rpn(&st->cond);
+            destroy_ast(st->if_true);
+            destroy_ast(st->if_false);
+            free(st);
             break;
         }
         case While: {
             t_while_statement *st = &statement->while_st;
-            // TODO
+            destroy_expr_rpn(&st->cond);
+            destroy_ast(st->block);
             break;
         }
     }
@@ -254,5 +261,7 @@ void destroy_statement(const e_statement_type type, u_statement *statement) {
 void destroy_ast(t_ast *prog) {
     if (prog == NULL)
         return;
-    // TODO
+    destroy_statement(prog->command, &prog->statement);
+    destroy_ast(prog->next);
+    prog->next = nullptr;
 }

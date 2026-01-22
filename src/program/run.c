@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "program/program.h"
 
@@ -12,22 +13,48 @@ bool run_aux(int var_value[], const t_ast *prog) {
         return false;
 
     switch (prog->command) {
-
         case Return: {
-            // prog->command == Return, so we assume that the statement has type t_return_statement
-            t_return_statement st = prog->statement.return_st;
-            // TODO
-            return false; // TODO
+            const t_return_statement st = prog->statement.return_st;
+            var_value[-1] = eval_rpn(var_value, &st.expr);
+            return true;
         }
-            // TODO
-        default:
+        case Assignment: {
+            const t_assignment_statement st = prog->statement.assignment_st;
+            var_value[(unsigned char)st.var - 'a'] = eval_rpn(var_value, &st.expr);
             break;
+        }
+        case Print: {
+            const t_print_statement st = prog->statement.print_st;
+            fprintf(stdout, "%d", eval_rpn(var_value, &st.expr));
+            break;
+        }
+        case If: {
+            const t_if_statement st = prog->statement.if_st;
+            if (eval_rpn(var_value, &st.cond)) {
+                run_aux(var_value, st.if_true);
+            }
+            run_aux(var_value, st.if_false);
+        }
+        case While: {
+            const t_while_statement st = prog->statement.while_st;
+            bool while_res = false;
+            while (eval_rpn(var_value, &st.cond)) {
+                while_res = run_aux(var_value, st.block);
+            }
+            if (while_res) return true;
+        }
+        default: {
+            fprintf(stderr , "Syntax error, Unrecognize statement\n");
+            exit(EXIT_FAILURE);
+        }
     }
-
-    return false; // TODO
+    return run_aux(var_value, prog->next);
 }
 
-void run(t_ast *prog) {
-
-    // TODO
+void run(const t_ast *prog) {
+    int var_value[27];
+    run_aux(var_value, prog);
+    for (int i = 0; i < 27; i++) {
+        fprintf(stdout, "%d\n", var_value[i]);
+    }
 }
