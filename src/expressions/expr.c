@@ -167,6 +167,10 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
                 break;
             
             case OPERATOR: {
+                if (stack.list.size < 2) {
+                    fprintf(stderr, "eval_rpn: malformed rpn expression");
+                    exit(EXIT_FAILURE);
+                }
                 const t_expr_token t = pop(&stack);
                 const int a = get_value(var_table, &t);
                 const t_expr_token t2 = pop(&stack);

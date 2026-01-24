@@ -25,45 +25,65 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
         return NULL;
 
     t_ast *prog = malloc(sizeof(t_ast)); // Current node of the AST
-
+    u_statement *statement = malloc(sizeof(u_statement));
     const t_prog_token token = ptl_get(list, *i);
     switch (token.token_type) {
         case PT_VAR: {
-            // TODO
+            prog->command = Assignment;
             t_assignment_statement st;
-            st.var = 'a'; // TODO
+            st.var = token.content.var;
+            *i = *i+2;
             get_expr(&st.expr, list, i);
-            // TODO
+            statement->assignment_st = st;
+            prog->statement = *statement;
             // prog->... = ...
             break;
         }
         case PT_KEYWORD: {
             switch (token.content.keyword) {
                 case KW_PRINT: {
-                    // TODO
+                    prog->command = Print;
+                    t_print_statement st;
+                    (*i)++;
+                    get_expr(&st.expr, list, i);
+                    statement->print_st = st;
+                    prog->statement = *statement;
                     break;
                 }
                 case KW_RETURN: {
+                    prog->command = Return;
                     t_return_statement st;
-                    // TODO
+                    (*i)++;
+                    get_expr(&st.expr, list, i);
+                    statement->return_st = st;
+                    prog->statement = *statement;
                     break;
                 }
                 case KW_IF: {
+                    prog->command = If;
                     t_if_statement st;
-                    st.if_true  = NULL;
-                    st.if_false = NULL;
-                    // TODO
+                    (*i)++;
+                    get_expr(&st.cond, list, i);
+                    st.if_true  = parse_aux(list, i);
+                    st.if_false = parse_aux(list, i);
+                    statement->if_st = st;
+                    prog->statement = *statement;
                     break;
                 }
                 case KW_WHILE: {
+                    prog->command = While;
                     t_while_statement st;
-                    st.block = NULL;
-                    // TODO
+                    (*i)++;
+                    get_expr(&st.cond, list, i);
+                    st.block = parse_aux(list, i);
+                    statement->while_st = st;
+                    prog->statement = *statement;
                     break;
                 }
                 case KW_ENDBLOCK:
                 case KW_ELSE: {
                     (*i)++;
+                    //prog->next = NULL;
                     return NULL;
                 }
                 default:
@@ -80,9 +100,10 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
         }
     }
     if (*i == (unsigned int) (-1)) {
-        //free(prog);
+        free(prog);
         return NULL;
     }
+    prog->next = parse_aux(list, i);
     return prog;
 }
 

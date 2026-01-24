@@ -25,15 +25,19 @@ bool run_aux(int var_value[], const t_ast *prog) {
         }
         case Print: {
             const t_print_statement st = prog->statement.print_st;
-            fprintf(stdout, "%d", eval_rpn(var_value, &st.expr));
+            fprintf(stdout, "%d\n", eval_rpn(var_value, &st.expr));
             break;
         }
         case If: {
             const t_if_statement st = prog->statement.if_st;
+            bool if_res = false;
             if (eval_rpn(var_value, &st.cond)) {
-                run_aux(var_value, st.if_true);
+                if_res = run_aux(var_value, st.if_true);
+            } else {
+                if_res = run_aux(var_value, st.if_false);
             }
-            run_aux(var_value, st.if_false);
+            if (if_res) return true;
+            break;
         }
         case While: {
             const t_while_statement st = prog->statement.while_st;
@@ -52,7 +56,7 @@ bool run_aux(int var_value[], const t_ast *prog) {
 }
 
 void run(const t_ast *prog) {
-    int var_value[27];
+    int* var_value = malloc(sizeof(int)*27);
     run_aux(var_value, prog);
     for (int i = 0; i < 27; i++) {
         fprintf(stdout, "%d\n", var_value[i]);
