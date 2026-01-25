@@ -167,7 +167,14 @@ t_prog_token_list lex(const char *s) {
             if (process_expr(&s, &token)) {
                 ptl_push_back(&list, token);
                 await_expr = false;
+                // Skip to the end of the line, avoid unexpected tokens at the of the program
+                while (*s != '\n' && *s != '\0') {
+                    s++;
+                }
                 continue;
+            } else {
+                fprintf(stderr, "Lexer error: expected expression\n");
+                exit(EXIT_FAILURE);
             }
         } else {
             if (process_var(&s, vars, &token)) {
@@ -175,11 +182,8 @@ t_prog_token_list lex(const char *s) {
                 continue;
             }
         }
-        token.token_type = PT_KEYWORD;
-        token.content.keyword = KW_ENDBLOCK;
-        ptl_push_back(&list, token);
 
-
+        // Skip unknown characters
         s++;
     }
     
