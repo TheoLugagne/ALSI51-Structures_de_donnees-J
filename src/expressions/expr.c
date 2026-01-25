@@ -63,11 +63,11 @@ t_expr parse_expr(const char **s) {
         }
 
         t_expr_token token;
-        if (*p >= 'a' && *p <= 'z') {
+        if (*p >= 'a' && *p <= 'z') { // var
             token = token_of_variable(*p);
             parsed_number = true;
         }
-        else if (*p >= '0' && *p <= '9') {
+        else if (*p >= '0' && *p <= '9') { // number
             int n = parse_int(&p);
             token = token_of_int(n);
             parsed_number = true;
@@ -103,6 +103,18 @@ t_expr parse_expr(const char **s) {
         else if ((*p == '!' || *p == '=') && *(p+1) == '=') {
             token = token_of_operator(*p == '=' ? EQUAL : DIFF);
             p++;
+        }
+        else if (*p == '&') {
+            token = token_of_operator(AND);
+        }
+        else if (*p == '|') {
+            token = token_of_operator(OR);
+        }
+        else if (*p == 'X') {
+            token = token_of_operator(XOR);
+        }
+        else if (*p == 'N') {
+            token = token_of_operator(NOT);
         }
         else {
             break;
@@ -167,10 +179,24 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
                 break;
             
             case OPERATOR: {
+                if (token.content.op == NOT) {
+                    if (stack.list.size < 1) {
+                        fprintf(stderr, "eval_rpn: NOT case -> malformed rpn expression");
+                        exit(EXIT_FAILURE);
+                    }
+                    const t_expr_token t = pop(&stack);
+                    const int a = get_value(var_table, &t);
+                    t_expr_token token_res;
+                    token_res.type = NUMBER;
+                    token_res.content.val = apply_op(token.content.op, a, 0);
+                    push(&stack, token_res);
+                    break;
+                }
                 if (stack.list.size < 2) {
                     fprintf(stderr, "eval_rpn: malformed rpn expression");
                     exit(EXIT_FAILURE);
                 }
+
                 const t_expr_token t = pop(&stack);
                 const int a = get_value(var_table, &t);
                 const t_expr_token t2 = pop(&stack);

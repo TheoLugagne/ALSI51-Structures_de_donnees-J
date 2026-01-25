@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include "expressions/operator.h"
 
@@ -33,10 +32,10 @@ operator_type operator_of_char(char c) {
             return AND;
         case '|':
             return OR;
-        case 'N':
-            return NOT;
         case 'X':
             return XOR;
+        case 'N':
+            return NOT;
         default:
             exit(EXIT_FAILURE);
     }
