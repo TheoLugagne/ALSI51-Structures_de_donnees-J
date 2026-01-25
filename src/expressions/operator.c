@@ -29,6 +29,14 @@ operator_type operator_of_char(char c) {
             return LEQ;
         case 'G':
             return GEQ;
+        case '&':
+            return AND;
+        case '|':
+            return OR;
+        case 'N':
+            return NOT;
+        case 'X':
+            return XOR;
         default:
             exit(EXIT_FAILURE);
     }
@@ -77,6 +85,14 @@ int apply_op(operator_type op, int a, int b) {
             return a == b;
         case DIFF:
             return a != b;
+        case AND:
+            return a && b;
+        case OR:
+            return a || b;
+        case XOR:
+            return (a || b) && !(a && b);
+        case NOT:
+            return !a; // b is ignored
         default:
             fprintf(stderr, "Unknown operator in apply_op\n");
             exit(EXIT_FAILURE);
@@ -119,6 +135,18 @@ void print_operator(operator_type op) {
         case DIFF:
             printf("!");
             break;
+        case AND:
+            printf("&");
+            break;
+        case OR:
+            printf("|");
+            break;
+        case XOR:
+            printf("X");
+            break;
+        case NOT:
+            printf("N");
+            break;
     }
     printf("%c", c);
 }
@@ -158,6 +186,18 @@ void print_operator_file(FILE *file, operator_type op) {
             break;
         case DIFF:
             fprintf(file, "!");
+            break;
+        case AND:
+            fprintf(file, "&");
+            break;
+        case OR:
+            fprintf(file, "|");
+            break;
+        case XOR:
+            fprintf(file, "X");
+            break;
+        case NOT:
+            fprintf(file, "N");
             break;
     }
     fprintf(file, "%c", c);

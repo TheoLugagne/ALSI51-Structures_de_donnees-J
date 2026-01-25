@@ -6,7 +6,8 @@
 
 typedef enum {
     ADD, SUB, MULT, DIV, EXP,
-    EQUAL, DIFF, LESS, GREATER, LEQ, GEQ
+    EQUAL, DIFF, LESS, GREATER, LEQ, GEQ,
+    AND, OR, NOT, XOR
 } operator_type;
 
 operator_type operator_of_char(char c);
