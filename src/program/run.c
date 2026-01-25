@@ -15,7 +15,7 @@ bool run_aux(int var_value[], const t_ast *prog) {
     switch (prog->command) {
         case Return: {
             const t_return_statement st = prog->statement.return_st;
-            var_value[-1] = eval_rpn(var_value, &st.expr);
+            var_value[26] = eval_rpn(var_value, &st.expr);
             return true;
         }
         case Assignment: {
@@ -44,8 +44,9 @@ bool run_aux(int var_value[], const t_ast *prog) {
             bool while_res = false;
             while (eval_rpn(var_value, &st.cond)) {
                 while_res = run_aux(var_value, st.block);
+                if (while_res) return true;
             }
-            if (while_res) return true;
+            break;
         }
         default: {
             fprintf(stderr , "Syntax error, Unrecognize statement\n");
@@ -56,7 +57,10 @@ bool run_aux(int var_value[], const t_ast *prog) {
 }
 
 void run(const t_ast *prog) {
-    int* var_value = malloc(sizeof(int)*27);
+    int var_value[27];
+    for (int i = 0; i < 27; i++) {
+        var_value[i] = 0;
+    }
     run_aux(var_value, prog);
     for (int i = 0; i < 27; i++) {
         fprintf(stdout, "%d\n", var_value[i]);

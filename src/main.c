@@ -92,8 +92,8 @@ void example() {
 
 int main() {
 
-    example();
-    return EXIT_SUCCESS;
+    // example();
+    // return EXIT_SUCCESS;
 
     const char *file_name = "../code/code.txt";
     char *code = read_file(file_name);

@@ -19,6 +19,8 @@ void get_expr(t_expr_rpn *expr, const t_prog_token_list *list, unsigned int *i) 
     (*i)++;
 }
 
+static bool is_else = false;
+
 t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
 
     if (*i >= list->size)
@@ -65,7 +67,12 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
                     (*i)++;
                     get_expr(&st.cond, list, i);
                     st.if_true  = parse_aux(list, i);
-                    st.if_false = parse_aux(list, i);
+                    if (is_else) {
+                        is_else = false;
+                        st.if_false = parse_aux(list, i);
+                    } else {
+                        st.if_false = NULL;
+                    }
                     statement->if_st = st;
                     prog->statement = *statement;
                     break;
@@ -80,10 +87,15 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
                     prog->statement = *statement;
                     break;
                 }
-                case KW_ENDBLOCK:
+                case KW_ENDBLOCK: {
+                    (*i)++;
+                    prog->next = NULL;
+                    return NULL;
+                }
                 case KW_ELSE: {
                     (*i)++;
-                    //prog->next = NULL;
+                    is_else = true;
+                    prog->next = NULL;
                     return NULL;
                 }
                 default:

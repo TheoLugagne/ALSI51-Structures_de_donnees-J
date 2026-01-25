@@ -189,7 +189,13 @@ void print_ast(const t_ast *prog, const char *file_name) {
 
 void run_program(const char *s) {
     t_prog_token_list list = lex(s);
-    
+
+    for (int i = 0; i < list.size; i++) {
+        print_prog_token(&list.data[i]);
+        printf("\n");
+    }
+    printf("finnnn\n");
+
     t_ast *prog = parse(&list);
     ptl_destroy_list(&list);
 
@@ -226,19 +232,16 @@ void destroy_statement(const e_statement_type type, u_statement *statement) {
         case Assignment: {
             t_assignment_statement *st = &statement->assignment_st;
             destroy_expr_rpn(&st->expr);
-            free(st);
             break;
         }
         case Return: {
             t_return_statement *st = &statement->return_st;
             destroy_expr_rpn(&st->expr);
-            free(st);
             break;
         }
         case Print: {
             t_print_statement *st = &statement->print_st;
             destroy_expr_rpn(&st->expr);
-            free(st);
             break;
         }
         case If: {
@@ -246,7 +249,6 @@ void destroy_statement(const e_statement_type type, u_statement *statement) {
             destroy_expr_rpn(&st->cond);
             destroy_ast(st->if_true);
             destroy_ast(st->if_false);
-            free(st);
             break;
         }
         case While: {
@@ -264,4 +266,5 @@ void destroy_ast(t_ast *prog) {
     destroy_statement(prog->command, &prog->statement);
     destroy_ast(prog->next);
     prog->next = nullptr;
+    free(prog);
 }
