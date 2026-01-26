@@ -24,7 +24,13 @@ void print_expr(const t_expr *expr);
 // Prints the content of the expression in the given file
 void print_expr_file(FILE *file, const t_expr *expr);
 
-//int parse_int(const char **p_s);
+// Returns the int at the beginning of the string pointed at by p_s
+// Moves p_s past the int
+int parse_int(const char **p_s);
+
+// Returns the string between " " at the beginning of the string pointed at by p_s
+// Moves p_s past the string
+char* parse_string(const char **p_s);
 
 // Converts the string s to an expression of type t_expr
 t_expr parse_expr(const char **s);

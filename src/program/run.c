@@ -62,7 +62,8 @@ void run(const t_ast *prog) {
         var_value[i] = 0;
     }
     run_aux(var_value, prog);
-    for (int i = 0; i < 27; i++) {
-        fprintf(stdout, "%d\n", var_value[i]);
-    }
+    fprintf(stdout, "return : %d\n", var_value[26]);
+    // for (int i = 0; i < 27; i++) {
+    //     fprintf(stdout, "%d\n", var_value[i]);
+    // }
 }

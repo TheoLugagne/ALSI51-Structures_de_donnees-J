@@ -29,6 +29,13 @@ t_expr_token token_of_variable(char var) {
     return t;
 }
 
+t_expr_token token_of_string(char* string) {
+    t_expr_token t;
+    t.type = STRING;
+    t.content.string = string;
+    return t;
+}
+
 // Returns true if the token is a left parenthesis
 bool is_left_parenthesis(const t_expr_token *t) {
     return t->type == PARENTHESIS && t->content.paren_type;
@@ -56,6 +63,9 @@ void print_token(const t_expr_token *token) {
         case VARIABLE:
             printf("%c", token->content.var);
             break;
+        case STRING:
+            printf("%s", token->content.string);
+            break;
     }
 }
 
@@ -72,6 +82,9 @@ void print_token_file(FILE *file, const t_expr_token *token) {
             break;
         case VARIABLE:
             fprintf(file, "%c", token->content.var);
+            break;
+        case STRING:
+            fprintf(file, "%s", token->content.string);
             break;
     }
 }

@@ -2,6 +2,7 @@
 #include "structures/stack.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Returns true if the expression has no token left
 bool is_empty_expr(const t_expr *expr) {
@@ -45,6 +46,22 @@ int parse_int(const char **p_s) {
     return n;
 }
 
+char* parse_string(const char **p_s) {
+    const char *s = *p_s;
+    int len = 0;
+    s++;
+    while (s[len] != '"') {
+        if (s[len] == '\0') {
+            fprintf(stderr, "parse_expr: Syntax error, malformed expression (EOF)");
+        }
+        len++;
+    }
+    char* string = calloc(len, sizeof(char));
+    memcpy(string, s, sizeof(char)*len);
+    for (int i = 0; i < len; i++) s++;
+    return string;
+}
+
 // Converts the string s to an expression of type t_expr
 t_expr parse_expr(const char **s) {
 
@@ -54,7 +71,6 @@ t_expr parse_expr(const char **s) {
     const char *p = *s;
 
     bool parsed_number = false;
-
     while (*p != '\0') {
 
         if (*p == ' ') {
@@ -63,7 +79,10 @@ t_expr parse_expr(const char **s) {
         }
 
         t_expr_token token;
-        if (*p >= 'a' && *p <= 'z') { // var
+        if (*p == '"') {
+            char* string = parse_string(&p);
+            token = token_of_string(string);
+        } else if (*p >= 'a' && *p <= 'z') { // var
             token = token_of_variable(*p);
             parsed_number = true;
         }
@@ -161,6 +180,15 @@ int get_value(const int var_table[], const t_expr_token *t) {
     }
 }
 
+char* get_string_value(const t_expr_token *t) {
+    if (t->type == STRING) {
+        return t->content.string;
+    }
+    fprintf(stderr, "get_string_value: string token expected");
+    exit(EXIT_FAILURE);
+}
+
+// TODO create an eval string function, split eval rpn and eval string
 // Returns the result of the evaluation of the expression expr, in Reverse Polish notation
 int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
 
@@ -174,6 +202,7 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
 
         switch (token.type) {
             case NUMBER:
+            case STRING:
             case VARIABLE:
                 push(&stack, token);
                 break;
@@ -220,6 +249,9 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
         exit(EXIT_FAILURE);
     }
     const t_expr_token token_result = get_top(&stack);
+    if (token_result.type == STRING) {
+        const strres
+    }
     const int res = get_value(var_table, &token_result);
 
     destroy_stack(&stack);
@@ -239,6 +271,7 @@ t_expr_rpn shunting_yard(t_expr *expr) {
         t_expr_token t = get_next_token(expr);
         switch (t.type) {
             case NUMBER:
+            case STRING:
             case VARIABLE:
                 add_token(output, t);
                 break;

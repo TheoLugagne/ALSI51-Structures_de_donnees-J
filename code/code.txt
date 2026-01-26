@@ -1,6 +1,7 @@
 a = 0
 b = 1
 c = 0
+print "Allah Akbar"
 if (a <= b)
     c = 2
     if (b < c)

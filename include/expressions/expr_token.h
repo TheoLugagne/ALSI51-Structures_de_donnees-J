@@ -6,7 +6,7 @@
 #include "expressions/operator.h"
 
 typedef enum {
-    NUMBER, OPERATOR, PARENTHESIS, VARIABLE
+    NUMBER, OPERATOR, PARENTHESIS, VARIABLE, STRING
 } e_token_type;
 
 typedef union {
@@ -14,6 +14,7 @@ typedef union {
     operator_type op;
     bool paren_type;
     char var;
+    char* string;
 } u_token_content;
 
 typedef struct {
@@ -32,6 +33,9 @@ t_expr_token token_of_parenthesis(char c);
 
 // Returns a token of type VARIABLE containing the variable var (a char between 'a' and 'z')
 t_expr_token token_of_variable(char var);
+
+// Returns a token of type STRING containing the value string
+t_expr_token token_of_string(char* string);
 
 // Returns true if the token is a left parenthesis
 bool is_left_parenthesis(const t_expr_token *t);
