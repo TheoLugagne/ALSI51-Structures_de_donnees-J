@@ -65,11 +65,11 @@ int apply_op(operator_type op, int a, int b) {
         case MULT:
             return a * b;
         case DIV:
-            if (b == 0) {
+            if (a == 0) {
                 fprintf(stderr, "Division by zero\n");
                 exit(EXIT_FAILURE);
             }
-            return a / b;
+            return b / a;
         case EXP:
             return fast_exp(a, b);
         case LESS:
