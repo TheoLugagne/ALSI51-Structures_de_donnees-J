@@ -190,6 +190,11 @@ void print_ast(const t_ast *prog, const char *file_name) {
 void run_program(const char *s) {
     t_prog_token_list list = lex(s);
 
+    for (int i = 0; i < list.size; i++) {
+        print_prog_token(&list.data[i]);
+        printf("\n");
+    }
+
     t_ast *prog = parse(&list);
     ptl_destroy_list(&list);
 
