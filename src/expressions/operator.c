@@ -122,6 +122,18 @@ void print_operator(operator_type op) {
         case GREATER:
             c = '>';
             break;
+        case AND:
+            c = '&';
+            break;
+        case OR:
+            c = '|';
+            break;
+        case XOR:
+            c = 'X';
+            break;
+        case NOT:
+            c = 'N';
+            break;
         case LEQ:
             printf("<");
             break;
@@ -133,18 +145,6 @@ void print_operator(operator_type op) {
             break;
         case DIFF:
             printf("!");
-            break;
-        case AND:
-            printf("&");
-            break;
-        case OR:
-            printf("|");
-            break;
-        case XOR:
-            printf("X");
-            break;
-        case NOT:
-            printf("N");
             break;
     }
     printf("%c", c);
@@ -174,29 +174,29 @@ void print_operator_file(FILE *file, operator_type op) {
         case GREATER:
             c = '>';
             break;
-        case LEQ:
-            fprintf(file, "<=");
-            break;
-        case GEQ:
-            fprintf(file, ">=");
-            break;
-        case EQUAL:
-            fprintf(file, "==");
-            break;
-        case DIFF:
-            fprintf(file, "!=");
-            break;
         case AND:
-            fprintf(file, "&");
+            c = '&';
             break;
         case OR:
-            fprintf(file, "|");
+            c = '|';
             break;
         case XOR:
-            fprintf(file, "X");
+            c = 'X';
             break;
         case NOT:
-            fprintf(file, "N");
+            c = 'N';
+            break;
+        case LEQ:
+            fprintf(file, "<");
+            break;
+        case GEQ:
+            fprintf(file, ">");
+            break;
+        case EQUAL:
+            fprintf(file, "=");
+            break;
+        case DIFF:
+            fprintf(file, "!");
             break;
     }
     fprintf(file, "%c", c);
