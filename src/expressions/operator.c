@@ -89,7 +89,7 @@ int apply_op(operator_type op, int a, int b) {
         case OR:
             return a || b;
         case XOR:
-            return (a || b) && !(a && b);
+            return (a || b) && !(a && b); // 1 0 | 0 1 -> 1 ; 1 1 | 0 0 -> 0
         case NOT:
             return !a; // b is ignored
         default:
@@ -175,16 +175,16 @@ void print_operator_file(FILE *file, operator_type op) {
             c = '>';
             break;
         case LEQ:
-            fprintf(file, "<");
+            fprintf(file, "<=");
             break;
         case GEQ:
-            fprintf(file, ">");
+            fprintf(file, ">=");
             break;
         case EQUAL:
-            fprintf(file, "=");
+            fprintf(file, "==");
             break;
         case DIFF:
-            fprintf(file, "!");
+            fprintf(file, "!=");
             break;
         case AND:
             fprintf(file, "&");
