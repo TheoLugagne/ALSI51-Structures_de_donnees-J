@@ -12,7 +12,7 @@ char *read_file(const char *file_name) {
     fseek(file, 0, SEEK_END);
     const unsigned int file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
-    char *buffer = malloc(file_size * sizeof(char));
+    char *buffer = malloc((file_size + 1) * sizeof(char));
     fread(buffer, sizeof(char), file_size, file);
     fclose(file);
     buffer[file_size] = '\0';
