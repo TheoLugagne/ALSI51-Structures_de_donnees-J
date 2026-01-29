@@ -63,6 +63,7 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
                     } else {
                         st.expr_type = STR;
                         st.string = print_expr_token.content.expr;
+                        (*i)++;
                     }
                     statement.print_st = st;
                     prog->statement = statement;
@@ -130,7 +131,7 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
         }
     }
     if (*i == (unsigned int) (-1)) {
-        free(prog);
+        //free(prog);
         return NULL;
     }
     prog->next = parse_aux(list, i);

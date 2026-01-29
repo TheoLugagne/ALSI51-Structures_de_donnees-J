@@ -220,9 +220,9 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
                 }
 
                 const t_expr_token t = pop(&stack);
-                const int a = get_value(var_table, &t);
+                const int b = get_value(var_table, &t);
                 const t_expr_token t2 = pop(&stack);
-                const int b = get_value(var_table, &t2);
+                const int a = get_value(var_table, &t2);
 
                 t_expr_token token_res;
                 token_res.type = NUMBER;
