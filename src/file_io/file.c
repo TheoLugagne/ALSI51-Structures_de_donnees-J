@@ -4,7 +4,7 @@
 
 char *read_file(const char *file_name) {
     
-    FILE *file = fopen(file_name, "r");
+    FILE *file = fopen(file_name, "rb");
     if (file == NULL) {
         printf("Error: file %s not found\n", file_name);
         return NULL;
