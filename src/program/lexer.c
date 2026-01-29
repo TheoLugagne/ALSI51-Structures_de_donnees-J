@@ -105,7 +105,7 @@ t_prog_token_list lex(const char *s) {
     int len_indent = 0;
     int curr_indent = 0;
 
-    while (*s != '\0' && *s != EOF && *s != '\r') {
+    while (*s != '\0' && *s != EOF) {
         t_prog_token token;
         if (in_indent && *s != ' ') {
             in_indent = false;
@@ -118,7 +118,7 @@ t_prog_token_list lex(const char *s) {
             curr_indent = len_indent;
             len_indent = 0;
         }
-        if (*s == ' ' || *s == '\n' || *s == ' ') {
+        if (*s == ' ' || *s == '\n' || *s == ' ' || *s == '\r') {
             s++;
             continue;
         }
