@@ -58,3 +58,10 @@ dkms.conf
 .idea
 .DStore
 .vscode
+
+# build files
+build/
+build_arm/
+
+# output files
+code/code.mmd
