@@ -3,6 +3,10 @@ project(compiler_proj C)
 
 set(CMAKE_C_STANDARD 23)
 
+# Enable debug symbols by default
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_C_FLAGS_DEBUG "-g -O0")
+
 include_directories(include/)
 
 add_executable(compiler_proj

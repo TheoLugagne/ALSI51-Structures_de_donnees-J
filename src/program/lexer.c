@@ -79,13 +79,21 @@ bool process_var(const char **p_s, const char* vars, t_prog_token *token) {
 bool process_expr(const char **p_s, t_prog_token *token) {
     size_t len = 0;
     const char* s = *p_s;
-    if (s[len] == '\"') len++;
-    while (s[len] != '\n' && s[len] != '\0' && s[len] != '\"') len++;
-    if (len == 0) return false;
 
-    token->token_type = PT_EXPR;
-    t_expr expression = parse_expr(p_s); // parse and move p_s forward
-    token->content.expr_rpn = shunting_yard(&expression);
+    if (s[len] == '\"') { // string expr
+        len++;
+        while (s[len] != '\n' && s[len] != '\0' && s[len] != '\"') len++;
+        if (len == 0) return false;
+        token->token_type = PT_STRING;
+        const t_expr expr = parse_expr(p_s);
+        token->content.expr = expr;
+    } else {
+        while (s[len] != '\n' && s[len] != '\0' && s[len] != '\"') len++;
+        if (len == 0) return false;
+        token->token_type = PT_EXPR;
+        t_expr expression = parse_expr(p_s); // parse and move p_s forward
+        token->content.expr_rpn = shunting_yard(&expression);
+    }
     return true;
 }
 

@@ -28,10 +28,6 @@ void print_expr_file(FILE *file, const t_expr *expr);
 // Moves p_s past the int
 int parse_int(const char **p_s);
 
-// Returns the string between " " at the beginning of the string pointed at by p_s
-// Moves p_s past the string
-char* parse_string(const char **p_s);
-
 // Converts the string s to an expression of type t_expr
 t_expr parse_expr(const char **s);
 
@@ -44,6 +40,12 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr);
 
 // Converts an expression in infix notation to Reverse Polish notation
 t_expr_rpn shunting_yard(t_expr *expr);
+
+// Returns the string between " " at the beginning of the string pointed at by p_s
+// Moves p_s past the string
+char* parse_string(const char **p_s);
+
+char* eval_string_expr(const t_expr *expr);
 
 // Destructor
 void destroy_expr(t_expr *expr);

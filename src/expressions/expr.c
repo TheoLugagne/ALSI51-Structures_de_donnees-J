@@ -56,9 +56,11 @@ char* parse_string(const char **p_s) {
         }
         len++;
     }
-    char* string = calloc(len, sizeof(char));
+    char* string = malloc(sizeof(char)*len+1);
     memcpy(string, s, sizeof(char)*len);
+    string[len] = '\0';
     for (int i = 0; i < len; i++) s++;
+    *p_s = s + 1;
     return string;
 }
 
@@ -180,14 +182,6 @@ int get_value(const int var_table[], const t_expr_token *t) {
     }
 }
 
-char* get_string_value(const t_expr_token *t) {
-    if (t->type == STRING) {
-        return t->content.string;
-    }
-    fprintf(stderr, "get_string_value: string token expected");
-    exit(EXIT_FAILURE);
-}
-
 // TODO create an eval string function, split eval rpn and eval string
 // Returns the result of the evaluation of the expression expr, in Reverse Polish notation
 int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
@@ -202,7 +196,6 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
 
         switch (token.type) {
             case NUMBER:
-            case STRING:
             case VARIABLE:
                 push(&stack, token);
                 break;
@@ -237,7 +230,10 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
                 push(&stack, token_res);
                 break;
             }
-
+            case STRING:
+                fprintf(stderr, "eval_rpn: string found in rpn expression");
+                exit(EXIT_FAILURE);
+                break;
             case PARENTHESIS:
                 fprintf(stderr, "eval_rpn: parenthesis found in rpn expression\n");
                 exit(EXIT_FAILURE);
@@ -249,9 +245,6 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
         exit(EXIT_FAILURE);
     }
     const t_expr_token token_result = get_top(&stack);
-    if (token_result.type == STRING) {
-        const strres
-    }
     const int res = get_value(var_table, &token_result);
 
     destroy_stack(&stack);
@@ -271,7 +264,6 @@ t_expr_rpn shunting_yard(t_expr *expr) {
         t_expr_token t = get_next_token(expr);
         switch (t.type) {
             case NUMBER:
-            case STRING:
             case VARIABLE:
                 add_token(output, t);
                 break;
@@ -306,6 +298,9 @@ t_expr_rpn shunting_yard(t_expr *expr) {
                     }
                 }
                 break;
+            case STRING:
+                fprintf(stderr, "eval_rpn: string found in rpn expression");
+                break;
         }
     }
 
@@ -321,6 +316,19 @@ t_expr_rpn shunting_yard(t_expr *expr) {
     destroy_expr(expr);
     destroy_stack(&op_stack);
     return expr_rpn;
+}
+
+char* get_string_value(const t_expr_token *t) {
+    if (t->type == STRING) {
+        return t->content.string;
+    }
+    fprintf(stderr, "get_string_value: string token expected");
+    exit(EXIT_FAILURE);
+}
+
+char* eval_string_expr(const t_expr *expr) {
+    const t_expr_token string = get(&expr->list, 0);
+    return get_string_value(&string);
 }
 
 void destroy_expr(t_expr *expr) {

@@ -38,6 +38,11 @@ void print_prog_token(const t_prog_token *token) {
             print_expr(&token->content.expr_rpn.expr);
             printf(")");
             break;
+        case PT_STRING:
+            printf("StrExpr(");
+            print_expr(&token->content.expr);
+            printf(")");
+            break;
         case PT_KEYWORD:
             print_keyword(token->content.keyword);
             break;

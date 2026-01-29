@@ -10,14 +10,20 @@ typedef enum {
     Assignment, If, While, Return, Print
 } e_statement_type;
 
+typedef enum {
+    RPN, STR
+} e_print_expr_type;
+
 // return [expr]
 typedef struct {
     t_expr_rpn expr;
 } t_return_statement;
 
-// print [expr]
+// print [expr || string] -- only one is filled
 typedef struct {
+    e_print_expr_type expr_type;
     t_expr_rpn expr;
+    t_expr string;
 } t_print_statement;
 
 // [var] = [expr]
