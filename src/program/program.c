@@ -42,6 +42,12 @@ void print_prog_node(FILE *file, const t_ast *prog) {
         }
         case Print: {
             const t_print_statement *st = &prog->statement.print_st;
+            if (st->expr_type == STR) {
+                fprintf(file, "Print (\"");
+                print_expr_file(file, &st->string);
+                fprintf(file, "\")");
+                break;
+            }
             e = &st->expr;
             fprintf(file, "Print (");
             print_expr_file(file, &e->expr);
@@ -240,7 +246,10 @@ void destroy_statement(const e_statement_type type, u_statement *statement) {
         }
         case Print: {
             t_print_statement *st = &statement->print_st;
-            destroy_expr_rpn(&st->expr);
+            if (st->expr_type == RPN)
+                destroy_expr_rpn(&st->expr);
+            else
+                destroy_expr(&st->string);
             break;
         }
         case If: {
