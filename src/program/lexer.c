@@ -93,7 +93,7 @@ bool process_expr(const char **p_s, t_prog_token *token) {
         token->token_type = PT_EXPR;
         t_expr expression = parse_expr(p_s); // parse and move p_s forward
         token->content.expr_rpn = shunting_yard(&expression);
-        // precomput
+        // precomputin
         simplify_constant_subexpressions_rpn(&token->content.expr_rpn);
         if (is_constant_expr_rpn(&token->content.expr_rpn)) {
             precompute_constant_expr_rpn(&token->content.expr_rpn);
