@@ -1,7 +1,7 @@
 a = 0
 b = 1
 c = 0
-print "Bonjour Jammy"
+print "kughdlkfjhgkmdfhgmkhnbdfmkjgbnkmrd2 + 3 +5 1 + a=(4 - 2) * 3 /n bN()"
 if (a <= b & b > 0)
     c = 2
     if (b < c)
