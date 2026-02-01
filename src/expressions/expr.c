@@ -9,6 +9,21 @@ bool is_empty_expr(const t_expr *expr) {
     return expr->list.size == 0;
 }
 
+bool is_constant_expr_rpn(const t_expr_rpn *expr_rpn) {
+    if (is_empty_expr(&expr_rpn->expr)) {
+        fprintf(stderr, "is_constant_expr_rpn: empty expression");
+        exit(EXIT_FAILURE);
+    }
+    t_expr expr = expr_rpn->expr;
+    while (!is_empty_expr(&expr)) {
+        const t_expr_token token = get_next_token(&expr);
+        if (token.type == VARIABLE) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // Adds a token at the back of the expression
 void add_token(t_expr *expr, T token) {
     push_back(&expr->list, token);
@@ -329,6 +344,74 @@ char* get_string_value(const t_expr_token *t) {
 char* eval_string_expr(const t_expr *expr) {
     const t_expr_token string = get(&expr->list, 0);
     return get_string_value(&string);
+}
+
+void simplify_constant_subexpressions_rpn(t_expr_rpn *expr_rpn) {
+    t_stack res_stack = create_empty_stack();
+    bool change = true;
+
+    while (change) {
+        change = false;
+        while (!is_empty_expr(&expr_rpn->expr)) {
+            const t_expr_token t = get_next_token(&expr_rpn->expr);
+            switch (t.type) {
+                case NUMBER:
+                case VARIABLE:
+                    push(&res_stack, t);
+                    break;
+                case OPERATOR:
+                    if (t.content.op == 'N') {
+                        if (is_empty_stack(&res_stack)) {
+                            fprintf(stderr, "simplify_constant_subexpressions_rpn: malformed rpn expr");
+                            exit(EXIT_FAILURE);
+                        }
+                        if (get_top(&res_stack).type == NUMBER) {
+                            t_expr_token t1 = pop(&res_stack);
+                            push(&res_stack, token_of_int(apply_op(t.content.op, get_value(nullptr, &t1), 0)));
+                            change = true;
+                        } else {
+                            push(&res_stack, t);
+                        }
+                        break;
+                    }
+                    if (res_stack.list.size < 2) {
+                        fprintf(stderr, "simplify_constant_subexpressions_rpn: malformed rpn expr");
+                        exit(EXIT_FAILURE);
+                    }
+                    t_expr_token t1 = pop(&res_stack);
+                    t_expr_token t2 = pop(&res_stack);
+                    if (t1.type == NUMBER && t2.type == NUMBER) {
+                        push(&res_stack, token_of_int(apply_op(
+                            t.content.op,
+                            get_value(nullptr, &t1),
+                            get_value(nullptr, &t2)
+                        )));
+                        change = true;
+                    } else {
+                        push(&res_stack, t);
+                    }
+                    break;
+                default:
+                    fprintf(stderr, "simplify_constant_subexpressions_rpn: malformed rpn expr");
+                    exit(EXIT_FAILURE);
+            }
+        }
+        while (!is_empty_stack(&res_stack)) {
+            add_token(&expr_rpn->expr, pop(&res_stack));
+        }
+    }
+}
+
+void precompute_constant_expr_rpn(t_expr_rpn *expr_rpn) {
+    if (!is_constant_expr_rpn(expr_rpn)) {
+        fprintf(stderr, "precompute_constant_expr_rpn: not a constant expr");
+        exit(EXIT_FAILURE);
+    }
+    t_expr *new_expr = malloc(sizeof(t_expr));
+    new_expr->list = create_empty_list();
+    add_token(new_expr, token_of_int(eval_rpn(nullptr, expr_rpn)));
+    destroy_expr(&expr_rpn->expr);
+    expr_rpn->expr = *new_expr;
 }
 
 void destroy_expr(t_expr *expr) {

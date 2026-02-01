@@ -47,6 +47,18 @@ char* parse_string(const char **p_s);
 
 char* eval_string_expr(const t_expr *expr);
 
+// Returns true if the expression is a constant expression
+bool is_constant_expr_rpn(const t_expr_rpn *expr_rpn);
+
+// Simplifies constant subexpressions in an RPN expression
+// For example: [2, 3, +, x, +] becomes [5, x, +]
+//              [a, 4, 2, -, +] becomes [a, 2, +]
+// The original expression is modified in-place
+void simplify_constant_subexpressions_rpn(t_expr_rpn *expr_rpn);
+
+// Pre-computes a fully constant expression and returns result as a NUMBER token
+void precompute_constant_expr_rpn(t_expr_rpn *expr_rpn);
+
 // Destructor
 void destroy_expr(t_expr *expr);
 void destroy_expr_rpn(t_expr_rpn *expr_rpn);
