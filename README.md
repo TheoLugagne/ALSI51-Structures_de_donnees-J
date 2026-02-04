@@ -354,6 +354,25 @@ while x != 0
     print x
 ```
 
+#### Boucle "for"
+
+itère sur une variable d'itération avec une initialisation **OU** une variable existante `init`, tant que `cond` est vrai. `assignment` est exécutée à chaque itération pour mettre à jour la variable d'itération.
+
+```
+for ([init]; [cond]; [assignment])
+    [block]
+```
+
+**Exemple :**
+```
+for (i = 0; i < 10; i = i + 1)
+    print i
+
+k = 1
+for (k; k < 50; k = k * 2)
+    print k 
+```
+
 ### Indentation
 
 À chaque entrée dans un bloc de `if`, `else` ou `while`, on indente le code du bloc avec **4 espaces**. Cette convention est importante si vous souhaitez écrire l'analyseur lexical.
