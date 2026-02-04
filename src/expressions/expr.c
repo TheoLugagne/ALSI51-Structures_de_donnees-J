@@ -389,6 +389,8 @@ void simplify_constant_subexpressions_rpn(t_expr_rpn *expr_rpn) {
                         change = true;
                     } else {
                         push(&res_stack, t);
+                        push(&res_stack, t2);
+                        push(&res_stack, t1);
                     }
                     break;
                 default:
