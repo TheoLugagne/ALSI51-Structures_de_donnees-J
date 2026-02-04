@@ -383,14 +383,15 @@ void simplify_constant_subexpressions_rpn(t_expr_rpn *expr_rpn) {
                     if (t1.type == NUMBER && t2.type == NUMBER) {
                         push(&res_stack, token_of_int(apply_op(
                             t.content.op,
-                            get_value(nullptr, &t1),
-                            get_value(nullptr, &t2)
+                            get_value(nullptr, &t2),
+                            get_value(nullptr, &t1)
                         )));
                         change = true;
                     } else {
-                        push(&res_stack, t);
+                        // Push back in correct RPN order: operand2, operand1, operator
                         push(&res_stack, t2);
                         push(&res_stack, t1);
+                        push(&res_stack, t);
                     }
                     break;
                 default:
@@ -399,7 +400,7 @@ void simplify_constant_subexpressions_rpn(t_expr_rpn *expr_rpn) {
             }
         }
         while (!is_empty_stack(&res_stack)) {
-            add_token(&expr_rpn->expr, pop(&res_stack));
+            push_front(&expr_rpn->expr.list, pop(&res_stack));
         }
     }
 }
