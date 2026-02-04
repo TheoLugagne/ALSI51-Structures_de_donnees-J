@@ -274,7 +274,6 @@ t_expr_rpn shunting_yard(t_expr *expr) {
     t_expr *output = &expr_rpn.expr;
 
     t_stack op_stack = create_empty_stack();
-
     while (!is_empty_expr(expr)) {
         t_expr_token t = get_next_token(expr);
         switch (t.type) {

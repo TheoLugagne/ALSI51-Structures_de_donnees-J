@@ -6,9 +6,9 @@ print b
 print c
 if (a <= b & b > 0)
     c = 2
-    if (b < c)
+    if (b & c == 0)
         print "c is less than b"
-        c = c ^ 3
+        c = c ^ (3 < 4)
     else
         print "c is greater than or equal to b"
         c = 4

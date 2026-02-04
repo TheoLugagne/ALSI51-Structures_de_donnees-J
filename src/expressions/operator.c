@@ -202,15 +202,33 @@ void print_operator_file(FILE *file, operator_type op) {
     fprintf(file, "%c", c);
 }
 
-
+int prec(operator_type op) {
+    switch(op) {
+        case EXP: return 5;
+        case MULT: case DIV: return 4;
+        case ADD: case SUB: return 3;
+        case LESS: case GREATER: case EQUAL: case DIFF: case LEQ: case GEQ: return 2;
+        case AND: case OR: case XOR: return 1;
+        default: return 0;
+    }
+}
 
 // Returns true if op2 takes priority over op1 in (a op2 b op1 c)
 bool takes_priority(operator_type op1, operator_type op2) {
     //return (op1 != EXP) && (op2 == DIV || op2 == EXP || op1 == ADD || op1 == SUB)
-      return (op1 != EXP &&
-            op2 != LESS && op2 != GREATER && op2 != LEQ && op2 != GEQ && op2 != EQUAL && op2 != DIFF)
-        &&
-        (op2 == EXP
-        || op1 == LESS || op1 == GREATER || op1 == LEQ || op1 == GEQ || op1 == EQUAL || op1 == DIFF
-        || op2 == DIV || op2 == EXP || op1 == ADD || op1 == SUB);
+    if (prec(op2) == prec(op1)) {
+        return (op2 != EXP); // EXP is right-associative
+    }
+    return prec(op2) > prec(op1);
 }
+
+// // Returns true if op2 takes priority over op1 in (a op2 b op1 c)
+// bool takes_priority(operator_type op1, operator_type op2) {
+//     //return (op1 != EXP) && (op2 == DIV || op2 == EXP || op1 == ADD || op1 == SUB)
+//       return (op1 != EXP &&
+//             op2 != LESS && op2 != GREATER && op2 != LEQ && op2 != GEQ && op2 != EQUAL && op2 != DIFF)
+//         &&
+//         (op2 == EXP
+//         || op1 == LESS || op1 == GREATER || op1 == LEQ || op1 == GEQ || op1 == EQUAL || op1 == DIFF
+//         || op2 == DIV || op2 == EXP || op1 == ADD || op1 == SUB);
+// }

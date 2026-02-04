@@ -26,8 +26,12 @@ bool run_aux(int var_value[], const t_ast *prog) {
         case Print: {
             const t_print_statement st = prog->statement.print_st;
             // TODO if string use get string  else eval rpn
-            if (st.expr_type == RPN) {fprintf(stdout, "%d\n", eval_rpn(var_value, &st.expr));}
-            if (st.expr_type == STR) { fprintf(stdout, "%s\n", eval_string_expr(&st.string)); }
+            if (st.expr_type == RPN) {
+                fprintf(stdout, "%d\n", eval_rpn(var_value, &st.expr));
+            }
+            if (st.expr_type == STR) {
+                fprintf(stdout, "%s\n", eval_string_expr(&st.string));
+            }
             break;
         }
         case If: {

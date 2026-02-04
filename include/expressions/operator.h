@@ -21,6 +21,9 @@ void print_operator(operator_type op);
 // Prints operator op in the given file
 void print_operator_file(FILE *file, operator_type op);
 
+// Returns the precedence of the operator op
+int prec(operator_type op);
+
 // Returns true if op2 takes priority over op1
 bool takes_priority(operator_type op1, operator_type op2);
 
