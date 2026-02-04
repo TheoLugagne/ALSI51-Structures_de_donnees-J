@@ -356,20 +356,20 @@ while x != 0
 
 #### Boucle "for"
 
-itère sur une variable d'itération avec une initialisation **OU** une variable existante `init`, tant que `cond` est vrai. `assignment` est exécutée à chaque itération pour mettre à jour la variable d'itération.
+itère sur une variable d'itération avec une initialisation **OU** une variable existante `init`, tant que `cond` est vrai. `expr` est assigné à la variable à chaque itération.
 
 ```
-for ([init]; [cond]; [assignment])
+for ([init]; [cond]; [expr])
     [block]
 ```
 
 **Exemple :**
 ```
-for (i = 0; i < 10; i = i + 1)
+for (i = 0; i < 10; i + 1)
     print i
 
 k = 1
-for (k; k < 50; k = k * 2)
+for (k; k < 50; k * 2)
     print k 
 ```
 
