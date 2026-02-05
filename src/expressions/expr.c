@@ -130,11 +130,12 @@ t_expr parse_expr(const char **s) {
             token = token_of_parenthesis(*p);
         }
         else if (*p == '<' || *p == '>') {
-            if (*(p+1) == '=')
+            if (*(p+1) == '=') {
                 token = token_of_operator(*p == '<' ? LEQ : GEQ);
-            else
+                p++;
+            } else {
                 token = token_of_operator(*p == '<' ? LESS : GREATER);
-            p++;
+            }
         }
         else if ((*p == '!' || *p == '=') && *(p+1) == '=') {
             token = token_of_operator(*p == '=' ? EQUAL : DIFF);
