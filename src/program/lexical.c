@@ -25,6 +25,9 @@ void print_keyword(const e_keyword keyword) {
         case KW_ENDBLOCK:
             printf("ENDBLOCK");
             break;
+        case KW_FOR:
+            printf("FOR");
+            break;
     }
 }
 

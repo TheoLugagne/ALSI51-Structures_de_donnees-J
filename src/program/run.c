@@ -25,7 +25,6 @@ bool run_aux(int var_value[], const t_ast *prog) {
         }
         case Print: {
             const t_print_statement st = prog->statement.print_st;
-            // TODO if string use get string  else eval rpn
             if (st.expr_type == RPN) {
                 fprintf(stdout, "%d\n", eval_rpn(var_value, &st.expr));
             }
@@ -51,6 +50,20 @@ bool run_aux(int var_value[], const t_ast *prog) {
             while (eval_rpn(var_value, &st.cond)) {
                 while_res = run_aux(var_value, st.block);
                 if (while_res) return true;
+            }
+            break;
+        }
+        case For: {
+            const t_for_statement st = prog->statement.for_st;
+            const char var = st.init_type == VAR ? st.init.var : st.init.assignment.var;
+            if (st.init_type == ASSIGNMENT) {
+                var_value[(unsigned char)var - 'a'] = eval_rpn(var_value, &st.init.assignment.expr);
+            }
+            while (eval_rpn(var_value, &st.cond)) {
+                bool for_res = false;
+                for_res = run_aux(var_value, st.block);
+                if (for_res) return true;
+                var_value[(unsigned char)var - 'a'] = eval_rpn(var_value, &st.expr);
             }
             break;
         }

@@ -24,6 +24,7 @@ bool process_keyword(const char **p_s, const e_keyword keyword_type, t_prog_toke
     switch (keyword_type) {
         case KW_ASSIGN:     kw = "=";           len = 1;    break;
         case KW_IF:         kw = "if";          len = 2;    break;
+        case KW_FOR:        kw = "for";         len = 3;    break;
         case KW_ELSE:       kw = "else";        len = 4;    break;
         case KW_WHILE:      kw = "while";       len = 5;    break;
         case KW_ENDBLOCK:   kw = "(end-block)"; len = 11;   break;
@@ -45,6 +46,7 @@ bool is_kw_await_expr(const e_keyword keyword_type) {
     switch (keyword_type) {
         case KW_ASSIGN:
         case KW_IF:
+        case KW_FOR:
         case KW_WHILE:
         case KW_PRINT:
         case KW_RETURN:   return true;
@@ -57,6 +59,7 @@ bool is_kw_await_expr(const e_keyword keyword_type) {
 bool is_kw_await_endblock(const e_keyword keyword_type) {
     switch (keyword_type) {
         case KW_IF:
+        case KW_FOR:
         case KW_WHILE: return true;
         case KW_ELSE:
         case KW_ASSIGN:
@@ -67,17 +70,30 @@ bool is_kw_await_endblock(const e_keyword keyword_type) {
     }
 }
 
-bool process_var(const char **p_s, const char* vars, t_prog_token *token) {
+bool is_allowed_var(const char var) {
+    return var >= 'a' && var <= 'z';
+}
+
+bool process_var(const char **p_s, t_prog_token *token) {
     const char *s = *p_s;
-    if (!str_eq(s, &vars[(unsigned char)s[0] - 'a'], 1)) return false;
+    if (!is_allowed_var(s[0])) return false;
     token->token_type = PT_VAR;
     token->content.var = s[0];
     (*p_s)++;
     return true;
 }
 
-bool process_expr(const char **p_s, t_prog_token *token) {
-    size_t len = 0;
+char** substring(const char *str, const int length) {
+    char **result = (char **)malloc(sizeof(char*));
+    char *sub = (char *)malloc(length + 1);
+    memcpy(sub, str, length);
+    sub[length] = '\0';
+    *result = sub;
+    return result;
+}
+
+bool process_expr(const char **p_s, t_prog_token *token, bool in_for) {
+    int len = 0;
     const char* s = *p_s;
 
     if (s[len] == '\"') { // string expr
@@ -88,10 +104,19 @@ bool process_expr(const char **p_s, t_prog_token *token) {
         const t_expr expr = parse_expr(p_s);
         token->content.expr = expr;
     } else {
-        while (s[len] != '\n' && s[len] != '\0' && s[len] != '\"') len++;
+        while (s[len] != '\n' && s[len] != '\0' && s[len] != '\"' && s[len] != ';') len++;
         if (len == 0) return false;
         token->token_type = PT_EXPR;
-        t_expr expression = parse_expr(p_s); // parse and move p_s forward
+        t_expr expression;
+        if (in_for) {
+            while (s[len] != ';' && s[len] != ')') len--;
+            const char **sub = substring(s, len);
+            expression = parse_expr(sub);
+            free(sub);
+            *p_s = *p_s + len;
+        } else {
+            expression = parse_expr(p_s); // parse and move p_s forward
+        }
         token->content.expr_rpn = shunting_yard(&expression);
         // precomputing
         simplify_constant_subexpressions_rpn(&token->content.expr_rpn);
@@ -106,14 +131,14 @@ t_prog_token_list lex(const char *s) {
     t_prog_token_list list = ptl_create_empty_list();
 
     #define BASE_INDENT 4
-    #define NB_KEYWORDS 7
-    static const e_keyword keywords[NB_KEYWORDS] = { KW_ASSIGN, KW_IF, KW_ELSE, KW_WHILE, KW_ENDBLOCK, KW_RETURN, KW_PRINT };
-    #define NB_VARS 26
-    static const char vars[NB_VARS] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+    #define NB_KEYWORDS 8
+    static constexpr e_keyword keywords[NB_KEYWORDS] = { KW_ASSIGN, KW_IF, KW_ELSE, KW_WHILE, KW_ENDBLOCK, KW_RETURN, KW_PRINT, KW_FOR};
 
     bool await_expr = false;
     bool await_endblock = false;
     bool in_indent = true;
+    bool in_for = false;
+    bool skip_expr = false;
     int nb_endblock_awaited = 0;
     int len_indent = 0;
     int curr_indent = 0;
@@ -131,7 +156,17 @@ t_prog_token_list lex(const char *s) {
             curr_indent = len_indent;
             len_indent = 0;
         }
-        if (*s == ' ' || *s == '\n' || *s == ' ' || *s == '\r') {
+        if (skip_expr && *s == '(') {
+            s++;
+            continue;
+        }
+        if (*s == ';') {
+            s++;
+            await_expr = true;
+            skip_expr = false;
+            continue;
+        }
+        if (*s == ' ' || *s == '\n' || *s == '\r') {
             s++;
             continue;
         }
@@ -153,6 +188,10 @@ t_prog_token_list lex(const char *s) {
                 skip_endblock = !await_endblock;
                 if (keywords[i] == KW_ELSE) {
                     skip_endblock = true;
+                }
+                if (keywords[i] == KW_FOR) {
+                    in_for = true;
+                    skip_expr = true;
                 }
                 is_kw = true;
                 break;
@@ -177,24 +216,25 @@ t_prog_token_list lex(const char *s) {
         if (need_to_add_eb) nb_endblock_awaited++;
         if (is_kw) { ptl_push_back(&list, token); continue; }
 
-        if (await_expr) {
-            if (process_expr(&s, &token)) {
+        if (await_expr && !skip_expr) {
+            if (process_expr(&s, &token, in_for)) {
                 ptl_push_back(&list, token);
                 await_expr = false;
                 // Skip to the end of the line, avoid unexpected tokens at the of the program
-                while (*s != '\n' && *s != '\0') {
+                while (*s != '\n' && *s != '\0' && *s != ';') {
+                    if (*s == ')') {
+                        in_for = false;
+                    }
                     s++;
                 }
                 continue;
-            } else {
-                fprintf(stderr, "Lexer error: expected expression\n");
-                exit(EXIT_FAILURE);
             }
-        } else {
-            if (process_var(&s, vars, &token)) {
-                ptl_push_back(&list, token);
-                continue;
-            }
+            fprintf(stderr, "Lexer error: expected expression\n");
+            exit(EXIT_FAILURE);
+        }
+        if (process_var(&s, &token)) {
+            ptl_push_back(&list, token);
+            continue;
         }
 
         // Skip unknown characters

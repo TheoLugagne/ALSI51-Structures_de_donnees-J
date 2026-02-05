@@ -88,7 +88,7 @@ t_expr parse_expr(const char **s) {
     const char *p = *s;
 
     bool parsed_number = false;
-    while (*p != '\0') {
+    while (*p != '\0' && *p != ';') {
 
         if (*p == ' ') {
             p++;

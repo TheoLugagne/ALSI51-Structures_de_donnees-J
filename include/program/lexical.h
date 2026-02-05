@@ -5,7 +5,7 @@
 
 // Different kinds of keywords
 typedef enum {
-    KW_ASSIGN, KW_IF, KW_ELSE, KW_WHILE, KW_ENDBLOCK, KW_RETURN, KW_PRINT
+    KW_ASSIGN, KW_IF, KW_ELSE, KW_WHILE, KW_ENDBLOCK, KW_RETURN, KW_PRINT, KW_FOR
 } e_keyword;
 
 // Different kinds of tokens (variable, expression, keyword)
@@ -27,7 +27,7 @@ typedef struct {
     u_prog_token_content content;
 } t_prog_token;
 
-void print_keyword(const e_keyword keyword); 
+void print_keyword(e_keyword keyword);
 void print_prog_token(const t_prog_token *token);
 
 void destroy_prog_token(t_prog_token *token);

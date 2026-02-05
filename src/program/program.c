@@ -26,6 +26,9 @@ void print_type_of_statement(e_statement_type type) {
         case Print:
             printf("Print");
             break;
+        case For:
+            printf("For");
+            break;
     }
 }
 
@@ -74,6 +77,26 @@ void print_prog_node(FILE *file, const t_ast *prog) {
             e = &st->cond;
             fprintf(file, "While (");
             print_expr_file(file, &e->expr);
+            fprintf(file, ")");
+            break;
+        }
+        case For: {
+            const t_for_statement *st = &prog->statement.for_st;
+            fprintf(file, "For (");
+            char var;
+            if (st->init_type == VAR) {
+                var = st->init.var;
+                fprintf(file, "%s", &st->init.var);
+            } else {
+                const t_assignment_statement *assignment = &st->init.assignment;
+                var = assignment->var;
+                fprintf(file, "%c ← ", assignment->var);
+                print_expr_file(file, &assignment->expr.expr);
+            }
+            fprintf(file, "; ");
+            print_expr_file(file, &st->cond.expr);
+            fprintf(file, "; %xc ← ", var);
+            print_expr_file(file, &st->expr.expr);
             fprintf(file, ")");
             break;
         }
@@ -173,6 +196,8 @@ bool print_mermaid_aux(FILE *file, const t_ast *prog, int *cpt) {
             fprintf(file, "\tA%d --> A%d: next\n", current_index, next_token);
             break;
         }
+        case For:
+            break;
     }
     return print_mermaid_aux(file, prog->next, cpt);
 }
@@ -257,6 +282,16 @@ void destroy_statement(const e_statement_type type, u_statement *statement) {
         case While: {
             t_while_statement *st = &statement->while_st;
             destroy_expr_rpn(&st->cond);
+            destroy_ast(st->block);
+            break;
+        }
+        case For: {
+            t_for_statement *st = &statement->for_st;
+            if (st->init_type == ASSIGNMENT) {
+                destroy_expr_rpn(&st->init.assignment.expr);
+            }
+            destroy_expr_rpn(&st->cond);
+            destroy_expr_rpn(&st->expr);
             destroy_ast(st->block);
             break;
         }

@@ -115,6 +115,29 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
                     prog->next = NULL;
                     return NULL;
                 }
+                case KW_FOR:
+                    prog->command = For;
+                    t_for_statement st;
+                    (*i)++;
+                    t_prog_token init_token = ptl_get(list, *i);
+                    if (init_token.token_type == PT_VAR) {
+                        st.init_type = VAR;
+                        st.init.var = init_token.content.var;
+                        (*i)++;
+                    } else {
+                        st.init_type = ASSIGNMENT;
+                        t_assignment_statement st_assign;
+                        st_assign.var = init_token.content.var;
+                        *i = *i+2;
+                        get_expr_rpn(&st_assign.expr, list, i);
+                        st.init.assignment = st_assign;
+                    }
+                    get_expr_rpn(&st.cond, list, i);
+                    get_expr_rpn(&st.expr, list, i);
+                    st.block = parse_aux(list, i);
+                    statement.for_st = st;
+                    prog->statement = statement;
+                    break;
                 default:
                     printf("Syntax error: wrong keyword ");
                     print_keyword(token.content.keyword);

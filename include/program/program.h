@@ -7,12 +7,16 @@ typedef struct s_ast t_ast;
 
 // Types of statements
 typedef enum {
-    Assignment, If, While, Return, Print
+    Assignment, If, While, Return, Print, For
 } e_statement_type;
 
 typedef enum {
     RPN, STR
 } e_print_expr_type;
+
+typedef enum {
+    VAR, ASSIGNMENT
+} e_for_init_type;
 
 // return [expr]
 typedef struct {
@@ -49,6 +53,21 @@ typedef struct {
     t_ast *block;
 } t_while_statement;
 
+// for ([init]; [cond]; [expr])
+//    [block]
+typedef union {
+    char var;
+    t_assignment_statement assignment;
+} u_for_init;
+
+typedef struct {
+    e_for_init_type init_type;
+    u_for_init init;
+    t_expr_rpn cond;
+    t_expr_rpn expr;
+    t_ast *block;
+} t_for_statement;
+
 // union containing a statement
 typedef union {
     t_return_statement        return_st;
@@ -56,6 +75,7 @@ typedef union {
     t_assignment_statement    assignment_st;
     t_if_statement            if_st;
     t_while_statement         while_st;
+    t_for_statement           for_st;
 } u_statement;
 
 // Recursive type for AST: a statement, its type, and a pointer to the next node of the AST
