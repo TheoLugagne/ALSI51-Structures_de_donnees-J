@@ -193,6 +193,9 @@ t_prog_token_list lex(const char *s) {
                     in_for = true;
                     skip_expr = true;
                 }
+                if (skip_expr && keywords[i] == KW_ASSIGN) {
+                    skip_expr = false;
+                }
                 is_kw = true;
                 break;
             }

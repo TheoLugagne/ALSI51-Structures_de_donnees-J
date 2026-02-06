@@ -119,8 +119,9 @@ t_ast *parse_aux(const t_prog_token_list *list, unsigned int *i) {
                     prog->command = For;
                     t_for_statement st;
                     (*i)++;
+                    t_prog_token assign_token = ptl_get(list, *i+1);
                     t_prog_token init_token = ptl_get(list, *i);
-                    if (init_token.token_type == PT_VAR) {
+                    if (assign_token.token_type != PT_KEYWORD) {
                         st.init_type = VAR;
                         st.init.var = init_token.content.var;
                         (*i)++;
