@@ -55,26 +55,26 @@ void example() {
         ptl_push_back(&token_list, array[i]);
 
     // AST
-    // t_ast node_1;
-    // t_ast node_2;
-    // t_ast node_3;
-    // t_ast node_4;
-    // t_ast node_5;
-    // node_1.command = Assignment;
-    // node_1.statement = (u_statement) { .assignment_st = {.var = 'a', .expr = expr_1}};
-    // node_1.next = &node_2;
-    // node_2.command = If;
-    // node_2.statement = (u_statement) { .if_st = {.cond = expr_2, .if_true = &node_3,.if_false = &node_4 }};
-    // node_2.next = &node_5;
-    // node_3.command = Print;
-    // node_3.statement = (u_statement) { .print_st = { .expr = expr_3}};
-    // node_3.next = NULL;
-    // node_4.command = Print;
-    // node_4.statement = (u_statement) { .print_st = { .expr = expr_4}};
-    // node_4.next = NULL;
-    // node_5.command = Return;
-    // node_5.statement = (u_statement) { .return_st = {.expr = expr_5 }};
-    // node_5.next = NULL;
+    t_ast node_1;
+    t_ast node_2;
+    t_ast node_3;
+    t_ast node_4;
+    t_ast node_5;
+    node_1.command = Assignment;
+    node_1.statement = (u_statement) { .assignment_st = {.var = 'a', .expr = expr_1}};
+    node_1.next = &node_2;
+    node_2.command = If;
+    node_2.statement = (u_statement) { .if_st = {.cond = expr_2, .if_true = &node_3,.if_false = &node_4 }};
+    node_2.next = &node_5;
+    node_3.command = Print;
+    node_3.statement = (u_statement) { .print_st = { .expr = expr_3}};
+    node_3.next = NULL;
+    node_4.command = Print;
+    node_4.statement = (u_statement) { .print_st = { .expr = expr_4}};
+    node_4.next = NULL;
+    node_5.command = Return;
+    node_5.statement = (u_statement) { .return_st = {.expr = expr_5 }};
+    node_5.next = NULL;
     // t_ast *prog_example = &node_1;
     t_ast *prog_example = parse(&token_list);
     // Checking that the AST is correctly drawn
@@ -89,25 +89,10 @@ void example() {
     */
 }
 
-void test_parsing_bool_expr() {
-    const char *s = "N(1 == 2 | 3 != 4 & (5 < 6 + 7 * 8))";
-    t_expr expr = parse_expr(&s);
-    print_expr(&expr);
-    printf("\n");
-    t_expr_rpn rpn_expr = shunting_yard(&expr);
-    print_expr(&rpn_expr.expr);
-    printf("\n");
-    printf("%d", eval_rpn(NULL, &rpn_expr));
-
-}
-
 
 int main() {
 
     // example();
-    // return EXIT_SUCCESS;
-
-    // test_parsing_bool_expr();
     // return EXIT_SUCCESS;
 
     const char *file_name = "../code/code.txt";

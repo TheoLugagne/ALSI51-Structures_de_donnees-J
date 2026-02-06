@@ -15,7 +15,7 @@ bool run_aux(int var_value[], const t_ast *prog) {
     switch (prog->command) {
         case Return: {
             const t_return_statement st = prog->statement.return_st;
-            var_value[26] = eval_rpn(var_value, &st.expr);
+            fprintf(stdout, "-> %d\n", eval_rpn(var_value, &st.expr));
             return true;
         }
         case Assignment: {
@@ -76,12 +76,11 @@ bool run_aux(int var_value[], const t_ast *prog) {
 }
 
 void run(const t_ast *prog) {
-    int var_value[27];
-    for (int i = 0; i < 27; i++) {
+    int var_value[26];
+    for (int i = 0; i < 26; i++) {
         var_value[i] = 0;
     }
     run_aux(var_value, prog);
-    fprintf(stdout, "return : %d\n", var_value[26]);
     // for (int i = 0; i < 27; i++) {
     //     fprintf(stdout, "%d\n", var_value[i]);
     // }
