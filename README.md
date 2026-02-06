@@ -125,12 +125,12 @@ Le code est organisé de la manière suivante :
     - `t_prog_token_list` : Liste dynamique pour les tokens du programme
   - **`src/file_io/`** : Code de lecture dans un fichier
   - **`src/program/`** : Implémentation complète du compilateur/interpréteur
-    - `lexer.c` : Analyse lexicale complète ✅
-    - `parser.c` : Analyse syntaxique complète ✅
-    - `run.c` : Exécution de l'AST complète ✅
-    - `program.c` : Fonctions auxiliaires et destructeur `destroy_ast` ✅
+    - `lexer.c` : Analyse lexicale complète 
+    - `parser.c` : Analyse syntaxique complète 
+    - `run.c` : Exécution de l'AST complète 
+    - `program.c` : Fonctions auxiliaires et destructeur `destroy_ast` 
     - `lexical.c` : Fonctions auxiliaires pour les tokens
-    - 
+
 ## Partie 3 : Analyse lexicale et fonctionnalités avancées
 
 Cette partie implémente l'analyseur lexical complet ainsi que des fonctionnalités avancées du compilateur.
