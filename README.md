@@ -1,5 +1,15 @@
 # ALSI51 - Compilation et exécution d'un mini-langage
 
+## Table des matières
+
+1. [Introduction](#introduction)
+2. [Aperçu de la base de code](#aperçu-de-la-base-de-code)
+3. [Extensions réalisées](#extensions-réalisées)
+4. [Annexes : Syntaxe du mini-langage](#annexes--syntaxe-du-mini-langage)
+5. [Compilation et exécution](#compilation-et-exécution)
+6. [Débogage](#débogage)
+7. [Exemples](#exemples)
+
 ## Introduction
 
 ### Objectif du projet
@@ -131,11 +141,7 @@ Le code est organisé de la manière suivante :
     - `program.c` : Fonctions auxiliaires et destructeur `destroy_ast` 
     - `lexical.c` : Fonctions auxiliaires pour les tokens
 
-## Partie 3 : Analyse lexicale et fonctionnalités avancées
-
-Cette partie implémente l'analyseur lexical complet ainsi que des fonctionnalités avancées du compilateur.
-
-### Implémentations réalisées
+## Extensions réalisées
 
 #### 1. Analyseur lexical complet (`src/program/lexer.c`)
 
