@@ -130,89 +130,7 @@ Le code est organisé de la manière suivante :
     - `run.c` : Exécution de l'AST complète ✅
     - `program.c` : Fonctions auxiliaires et destructeur `destroy_ast` ✅
     - `lexical.c` : Fonctions auxiliaires pour les tokens
-
-## Partie 1 : Exécution d'un AST
-
-Cette partie implémente l'exécution d'un AST, permettant d'interpréter les programmes représentés sous forme d'arbre syntaxique abstrait.
-
-### Implémentations réalisées
-
-#### 1. Évaluation des expressions RPN (`src/expressions/expr.c`)
-
-- **`eval_rpn()`** : Évalue des expressions en notation polonaise inverse (RPN)
-  - Gère les variables via une table de variables (`var_table`)
-  - Supporte tous les opérateurs arithmétiques, de comparaison et logiques
-  - Gestion des opérateurs unaires (NOT)
-  - Détection d'erreurs pour les expressions malformées
-
-- **`shunting_yard()`** : Convertit les expressions infixes en RPN
-  - Utilise l'algorithme de Shunting Yard
-  - Respecte la priorité des opérateurs
-  - Gère les parenthèses pour modifier l'ordre d'évaluation
-
-#### 2. Application des opérateurs (`src/expressions/operator.c`)
-
-- **`apply_op()`** : Applique un opérateur à deux opérandes
-  - **Opérateurs arithmétiques** : `+`, `-`, `*`, `/`, `^` (puissance avec exponentiation rapide)
-  - **Opérateurs de comparaison** : `==`, `!=`, `<`, `>`, `<=`, `>=`
-  - **Opérateurs logiques** : `&` (ET), `|` (OU), `N` (NON), `^` (XOR)
-  - Protection contre la division par zéro
-  - Gestion des opérateurs unaires (NOT utilise uniquement le premier opérande)
-
-#### 3. Gestion mémoire de l'AST (`src/program/program.c`)
-
-- **`destroy_ast()`** : Libère récursivement toute la mémoire allouée pour un AST
-- **`destroy_statement()`** : Fonction auxiliaire qui libère les ressources selon le type d'instruction
-  - Libère les expressions RPN des affectations, retours et conditions
-  - Libère récursivement les blocs if/else et while
-  - Gère les chaînes de caractères dans les instructions print
-
-#### 4. Exécution du programme (`src/program/run.c`)
-
-- **`run()`** : Point d'entrée pour l'exécution d'un AST
-  - Initialise un tableau de 27 variables (26 variables `a-z` + valeur de retour)
-  - Appelle `run_aux()` pour l'exécution récursive
-  - Affiche la valeur de retour à la fin de l'exécution
-
-- **`run_aux()`** : Fonction récursive d'exécution
-  - **Assignment** : Évalue l'expression et stocke le résultat dans la variable
-  - **Print** : Affiche le résultat d'une expression ou une chaîne de caractères
-  - **If** : Évalue la condition et exécute le bloc approprié (if_true ou if_false)
-  - **While** : Exécute le bloc tant que la condition est vraie (non nulle)
-  - **Return** : Évalue l'expression et stocke le résultat dans `var_value[26]`, puis arrête l'exécution
-  - Gère la propagation de l'arrêt d'exécution lors d'un `return`
-
-## Partie 2 : Analyse syntaxique
-
-Cette partie implémente l'analyseur syntaxique qui convertit une liste de tokens en arbre syntaxique abstrait (AST).
-
-### Implémentations réalisées
-
-#### 1. Parsing principal (`src/program/parser.c`)
-
-- **`parse()`** : Point d'entrée du parser
-  - Vérifie que la liste de tokens n'est pas vide
-  - Initialise l'index de parcours et appelle `parse_aux()`
-
-- **`parse_aux()`** : Fonction récursive de parsing
-  - Construit récursivement l'AST en parcourant la liste de tokens
-  - Gère tous les types d'instructions :
-    - **Affectation** (`PT_VAR`) : Parse la variable et l'expression assignée
-    - **Print** (`KW_PRINT`) : Parse les expressions ou chaînes de caractères
-    - **Return** (`KW_RETURN`) : Parse l'expression de retour
-    - **If** (`KW_IF`) : Parse la condition et les blocs if/else récursivement
-    - **While** (`KW_WHILE`) : Parse la condition et le bloc de la boucle
-  - Gère les tokens `KW_ENDBLOCK` pour marquer la fin des blocs
-  - Gère les tokens `KW_ELSE` pour les branches else des conditionnelles
-  - Détection d'erreurs de syntaxe avec messages explicites
-
-- **`get_expr_rpn()`** : Fonction auxiliaire pour extraire une expression RPN depuis un token
-  - Vérifie que le token est bien de type `PT_EXPR`
-  - Gère les erreurs si une expression est attendue mais non trouvée
-
-- **`is_token_expr_or_string()`** : Vérifie si un token est une expression ou une chaîne
-  - Utilisée pour valider les arguments des instructions `print`
-
+    - 
 ## Partie 3 : Analyse lexicale et fonctionnalités avancées
 
 Cette partie implémente l'analyseur lexical complet ainsi que des fonctionnalités avancées du compilateur.
@@ -229,10 +147,6 @@ Cette partie implémente l'analyseur lexical complet ainsi que des fonctionnalit
   - Gère les chaînes de caractères entre guillemets doubles
   - Gère l'indentation pour détecter les blocs (4 espaces)
   - Génère automatiquement les tokens `KW_ENDBLOCK` lors des changements d'indentation
-
-- **`process_keyword()`** : Reconnaît les mots-clés dans le code source
-- **`is_kw_await_expr()`** : Détermine si un mot-clé attend une expression
-- **`is_kw_await_endblock()`** : Détermine si un mot-clé nécessite un bloc
 
 #### 2. Opérateurs booléens dans les expressions
 
@@ -260,34 +174,39 @@ print "Hello world"
 print 42
 ```
 
-#### 4. Export de l'AST au format Mermaid
+#### 4. Précalcul des sous-expressions constantes
+Le compilateur identifie et évalue à la compilation les sous-expressions qui ne dépendent d'aucune variable, c'est-à-dire qui sont composées uniquement de constantes. Ces sous-expressions sont alors remplacées par leur résultat calculé, ce qui permet d'optimiser l'exécution du programme.
 
-Le compilateur génère automatiquement une représentation graphique de l'AST :
+Algorithme (haute-niveau)
+1. L'expression est d'abord convertie en RPN (notation polonaise inverse) avec `shunting_yard()`.
+2. On parcourt la représentation RPN pour identifier des séquences d'opérandes et d'opérateurs qui ne dépendent d'aucune variable (tous des constantes).
+3. Pour chaque sous-séquence constante trouvée, on calcule son résultat (en évaluant localement la sous-expression) et on remplace la séquence par un unique opérande constant.
+4. On répète l'opération jusqu'à stabilisation (aucune sous-expression constante supplémentaire possible).
 
-- **`print_ast()`** : Génère une représentation graphique de l'AST
-- **`print_mermaid_aux()`** : Fonction récursive pour générer le diagramme Mermaid
-  - Représente tous les types d'instructions
-  - Gère les transitions conditionnelles (then/else pour if)
-  - Gère les boucles (retour au début pour while)
-  - Format compatible avec Mermaid Live Editor et extensions VS Code/Cursor
+Implémentation (dans le projet)
+- Fichier principal : `src/program/lexer.c` (après le parsing de l'expression).
+- Fonctions clés appelées dans la pipeline :
+  - `shunting_yard()` : conversion infixe → RPN.
+  - `simplify_constant_subexpressions_rpn(&expr_rpn)` : parcourt et remplace les sous-expressions constantes dans la structure RPN.
+  - `is_constant_expr_rpn(&expr_rpn)` : teste si l'expression RPN est entièrement constante (utile pour décider si on peut remplacer l'expression par un littéral simple).
+  - `precompute_constant_expr_rpn(&expr_rpn)` : évalue une expression RPN entièrement constante et la remplace par un seul opérande constant (optimisation finale).
 
-Les fichiers `.mmd` générés permettent de visualiser la structure du programme compilé.
+Exemples
+- Avant : expression infixe `2 + 3 * (4 - 1)`
+  - RPN initial : `2 3 4 1 - * +`
+  - Après simplification : `2 3 3 * +` → puis `2 9 +` → puis `11`
+  - Résultat stocké : un littéral `11` (RPN réduit à un seul opérande).
 
-#### 5. Gestion d'erreurs
+- Avant : `a + (2 * 3)`
+  - RPN initial : `a 2 3 * +`
+  - Seule la sous-expression `2 3 *` est constante et sera remplacée par `6` → RPN devient `a 6 +`.
 
-Le compilateur inclut une gestion d'erreurs robuste :
-
-- Messages d'erreur explicites lors du parsing
-- Détection des expressions malformées
-- Protection contre la division par zéro
-- Validation des types de tokens attendus
-
-### Fonctionnalités intégrées
-
-- **`run_program()`** : Fonction complète qui combine lexing, parsing et exécution en une seule étape
-- **`export_program_ast()`** : Exporte l'AST d'un programme depuis son code source vers un fichier Mermaid
-- **Support des nombres négatifs** : Les expressions peuvent contenir des nombres négatifs (ex: `-5`, `-x`)
-- **Gestion complète de l'indentation** : Détection automatique des blocs via l'indentation (4 espaces)
+#### 5. Support des boucles "for"
+Le langage supporte désormais les boucles `for` avec la syntaxe suivante :
+```
+for ([init]; [cond]; [expr])
+    [block]
+```
 
 ## Annexes : Syntaxe du mini-langage
 
@@ -383,7 +302,7 @@ Le langage supporte des expressions complexes avec :
 
 - **Opérateurs arithmétiques** : `+`, `-`, `*`, `/`, `^` (puissance)
 - **Opérateurs de comparaison** : `==`, `!=`, `<`, `>`, `<=`, `>=`
-- **Opérateurs logiques** : `&` (ET), `|` (OU), `N` (NON), `^` (XOR)
+- **Opérateurs logiques** : `&` (ET), `|` (OU), `N` (NON), `X` (XOR)
 - **Parenthèses** : pour grouper les expressions
 - **Nombres entiers** : valeurs numériques (support des nombres négatifs)
 - **Variables** : références aux variables définies (caractères `a` à `z`)
@@ -540,51 +459,9 @@ return 0
 -> 0
 ```
 
-## Notes techniques
-
-### Évaluation des expressions
-
-- **Algorithme Shunting Yard** : Convertit les expressions infixes en notation polonaise inverse (RPN)
-- **Évaluation RPN** : Utilise une pile pour évaluer efficacement les expressions
-- **Gestion des opérateurs unaires** : Support du moins unaire (`-nombre`)
-- **Chaînes de caractères** : Parsing et évaluation des chaînes entre guillemets doubles
-
-### Gestion des variables
-
-- **26 variables disponibles** : `a` à `z`
-- **Table de variables** : Tableau de 26 entiers indexé par caractère (`a-z`)
-- **Valeur de retour** : Stockée dans `var_value[26]` (index spécial)
-- **Portée** : Variables globales accessibles dans tout le programme
-
-### Structure de l'AST
-
-- **Type récursif** : Chaque nœud contient un type d'instruction, une union de structures, et un pointeur vers le nœud suivant
-- **Types d'instructions** : `Assignment`, `If`, `While`, `Return`, `Print`
-- **Exécution récursive** : La fonction `run_aux()` parcourt récursivement l'AST
-
-### Gestion de l'indentation
-
-- **Base d'indentation** : 4 espaces (`BASE_INDENT = 4`)
-- **Détection automatique** : Le lexer détecte les changements d'indentation
-- **Génération de tokens ENDBLOCK** : Les fins de blocs sont gérées automatiquement
-
-## Modalités de rendu et soutenance
-
-**Note :** Projet à réaliser en trinômes
-
-- **Trois séances en classe** : 11/12, 16/01, 27/01
-- **Soutenance** : Au cours de la dernière séance, sur le projet en cours de complétion
-- **Rendu du code** : La semaine du 26/01
-
-## Références
-
-- **Algorithme Shunting Yard** : Conversion infixe → RPN
-- **Notation polonaise inverse (RPN)** : Évaluation efficace des expressions
-- **Arbre syntaxique abstrait (AST)** : Représentation hiérarchique du programme
-
 ## Auteur
 
-Projet réalisé dans le cadre du cours ALSI51 - Structures de données.
+Moi.
 
 ## Licence
 
