@@ -239,7 +239,6 @@ t_prog_token_list lex(const char *s) {
             ptl_push_back(&list, token);
             continue;
         }
-
         // Skip unknown characters
         s++;
     }

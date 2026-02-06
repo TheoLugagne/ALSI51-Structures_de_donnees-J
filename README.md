@@ -359,31 +359,6 @@ Le programme lit le fichier `code/code.txt` (relatif au répertoire d'exécution
 
 Le programme génère automatiquement une représentation de l'AST au format Mermaid (`.mmd`) qui peut être visualisée avec des outils comme Mermaid Live Editor ou des extensions VS Code/Cursor.
 
-## Structure du projet
-
-```
-.
-├── CMakeLists.txt          # Configuration CMake
-├── build.sh                # Script de compilation
-├── run.sh                  # Script d'exécution
-├── debug.sh                # Script de débogage
-├── DEBUG_GUIDE.md          # Guide de débogage avec GDB
-├── code/                   # Fichiers de code source exemples
-│   ├── code.txt
-│   └── code_example.txt
-├── include/                # Fichiers d'en-tête
-│   ├── expressions/        # Gestion des expressions
-│   ├── file_io/            # Entrée/sortie de fichiers
-│   ├── program/             # Lexer, parser, runtime
-│   └── structures/         # Structures de données
-└── src/                    # Code source
-    ├── main.c              # Point d'entrée
-    ├── expressions/        # Implémentation des expressions
-    ├── file_io/            # Implémentation I/O
-    ├── program/            # Implémentation lexer/parser/runtime
-    └── structures/         # Implémentation des structures
-```
-
 ## Débogage
 
 Consultez `DEBUG_GUIDE.md` pour un guide complet sur le débogage avec GDB.
