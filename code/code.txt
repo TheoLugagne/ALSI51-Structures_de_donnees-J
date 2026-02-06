@@ -1,9 +1,6 @@
 a = 2 + 3
 b = 1 * 2 + a
 c = 2 / 1
-print a
-print b
-print c
 for (c = 3; c > 0; c - 1)
     print c
 if (a<= b&b>0)
@@ -15,9 +12,7 @@ if (a<= b&b>0)
         print "c is greater than or equal to b"
         c = 4
 while (c)
-    print c
     if (c == 1)
         print "c is one"
-        print 0
     c = c - 1
 return c
