@@ -93,9 +93,9 @@ void print_prog_node(FILE *file, const t_ast *prog) {
                 fprintf(file, "%c ← ", assignment->var);
                 print_expr_file(file, &assignment->expr.expr);
             }
-            fprintf(file, "; ");
+            fprintf(file, ", ");
             print_expr_file(file, &st->cond.expr);
-            fprintf(file, "; %xc ← ", var);
+            fprintf(file, ", %c ← ", var);
             print_expr_file(file, &st->expr.expr);
             fprintf(file, ")");
             break;
@@ -148,7 +148,7 @@ bool print_mermaid_aux(FILE *file, const t_ast *prog, int *cpt) {
             bool else_final;
             const int index_ret_true = *cpt;
             int index_ret_else;
-            
+
             if (st->if_false != NULL) {
                 (*cpt)++;
                 cpt_if_false = *cpt;
@@ -196,8 +196,34 @@ bool print_mermaid_aux(FILE *file, const t_ast *prog, int *cpt) {
             fprintf(file, "\tA%d --> A%d: next\n", current_index, next_token);
             break;
         }
-        case For:
+        case For: {
+            const t_for_statement *st = &prog->statement.for_st;
+            (*cpt)++;
+            // then = beginning of the block
+#ifdef FLOWCHART
+            fprintf(file, "\tA%d -- then --> A%d\n", current_index, *cpt);
+#else
+            fprintf(file, "\tA%d --> A%d: then\n", current_index, *cpt);
+#endif
+            // print the block
+            print_mermaid_aux(file, st->block, cpt);
+            const int index_ret_block = *cpt;
+            // after the block, go back to the for condition (current_index)
+#ifdef FLOWCHART
+            fprintf(file, "\tA%d --> A%d\n", index_ret_block, current_index);
+#else
+            fprintf(file, "\tA%d --> A%d\n", index_ret_block, current_index);
+#endif
+            // node after the loop
+            (*cpt)++;
+            const int next_token = *cpt;
+#ifdef FLOWCHART
+            fprintf(file, "\tA%d -- next --> A%d\n", current_index, next_token);
+#else
+            fprintf(file, "\tA%d --> A%d: next\n", current_index, next_token);
+#endif
             break;
+        }
     }
     return print_mermaid_aux(file, prog->next, cpt);
 }
